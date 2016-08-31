@@ -40,6 +40,13 @@ class RouteCollection implements Countable, IteratorAggregate
      * @var array
      */
     protected $actionList = [];
+    
+    /**
+     * A look-up table of routes by group name
+     *
+     * @var array
+     */
+    protected $groupList = [];
 
     /**
      * Add a Route instance to the collection.
@@ -95,6 +102,10 @@ class RouteCollection implements Countable, IteratorAggregate
         // processing a request and easily generate URLs to the given controllers.
         if (isset($action['controller'])) {
             $this->addToActionList($action, $route);
+        }
+
+        if(isset($action['group'])){
+            $this->addToGroupList((array)$action['group'], $route);
         }
     }
 
@@ -279,6 +290,41 @@ class RouteCollection implements Countable, IteratorAggregate
     public function getByAction($action)
     {
         return isset($this->actionList[$action]) ? $this->actionList[$action] : null;
+    }
+
+    /**
+     * Adds a route to the groups
+     *
+     * @param array $groups
+     * @param $route
+     */
+    protected function addToGroupList(array $groups, $route)
+    {
+        foreach($groups as $thisGroup)
+        {
+            $this->groupList[$thisGroup][$route->getUri()] = $route;
+        }
+    }
+
+    /**
+     * Gets the group by group name
+     *
+     * @param $groupName
+     * @return mixed
+     */
+    public function getByGroup($groupName)
+    {
+        return array_get($this->groupList, $groupName);
+    }
+
+    /**
+     * Gets the group list of routes
+     *
+     * @return array
+     */
+    public function getGroupList()
+    {
+        return $this->groupList;
     }
 
     /**

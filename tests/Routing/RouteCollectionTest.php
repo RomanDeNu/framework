@@ -179,4 +179,32 @@ class RouteCollectionTest extends PHPUnit_Framework_TestCase
         ];
         $this->assertEquals($allRoutes, $this->routeCollection->getRoutes());
     }
+
+    public function testGetByGroup()
+    {
+        $group = 'group1';
+        $routeIndex = new Route('GET', 'foo/index', [
+            'group' => $group
+        ]);
+
+        $routeIndex2 = new Route('GET', 'foo/index2', [
+            'group' => $group
+        ]);
+
+        $routeIndex3 = new Route('GET', 'not/foo', [
+            'group' => 'group2'
+        ]);
+
+        $this->routeCollection->add($routeIndex);
+        $this->routeCollection->add($routeIndex2);
+        $this->routeCollection->add($routeIndex3);
+
+        $result = $this->routeCollection->getByGroup($group);
+
+        foreach($result as $thisResult){
+            $this->assertEquals($group, $thisResult->getAction()['group']);
+        }
+
+        $this->assertCount(2, $result);
+    }
 }
